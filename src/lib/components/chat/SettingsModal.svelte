@@ -58,6 +58,7 @@
 
 	// General
 	let API_BASE_URL = '';
+	let API_AUTH_HEADER = '';
 	let themes = ['dark', 'light', 'rose-pine dark', 'rose-pine-dawn light'];
 	let theme = 'dark';
 	let notificationEnabled = false;
@@ -199,7 +200,7 @@
 	};
 
 	const updateOllamaAPIUrlHandler = async () => {
-		API_BASE_URL = await updateOllamaAPIUrl(localStorage.token, API_BASE_URL);
+		API_BASE_URL = await updateOllamaAPIUrl(localStorage.token, API_BASE_URL, API_AUTH_HEADER);
 		const _models = await getModels('ollama');
 
 		if (_models.length > 0) {
@@ -1025,6 +1026,38 @@
 									>
 										Click here for help.
 									</a>
+								</div>
+
+								<div>
+									<div class="mt-3 mb-2.5 text-sm font-medium">Ollama API Key</div>
+									<div class="flex w-full">
+										<div class="flex-1 mr-2">
+											<input
+												class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
+												placeholder="Enter API key for Ollama server (only needed once)"
+												bind:value={API_AUTH_HEADER}
+											/>
+										</div>
+										<button
+											class="px-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 rounded transition"
+											on:click={() => {
+												updateOllamaAPIUrlHandler();
+											}}
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												viewBox="0 0 20 20"
+												fill="currentColor"
+												class="w-4 h-4"
+											>
+												<path
+													fill-rule="evenodd"
+													d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z"
+													clip-rule="evenodd"
+												/>
+											</svg>
+										</button>
+									</div>
 								</div>
 							</div>
 						{/if}

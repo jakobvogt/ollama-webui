@@ -32,7 +32,7 @@ export const getOllamaAPIUrl = async (token: string = '') => {
 	return res.OLLAMA_API_BASE_URL;
 };
 
-export const updateOllamaAPIUrl = async (token: string = '', url: string) => {
+export const updateOllamaAPIUrl = async (token: string = '', url: string, auth_header: string) => {
 	let error = null;
 
 	const res = await fetch(`${OLLAMA_API_BASE_URL}/url/update`, {
@@ -43,7 +43,8 @@ export const updateOllamaAPIUrl = async (token: string = '', url: string) => {
 			...(token && { authorization: `Bearer ${token}` })
 		},
 		body: JSON.stringify({
-			url: url
+			url: url,
+			auth_header: auth_header
 		})
 	})
 		.then(async (res) => {

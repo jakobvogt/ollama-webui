@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from apps.web.models.users import Users
 from constants import ERROR_MESSAGES
 from utils.utils import decode_token, get_current_user
-from config import OLLAMA_API_BASE_URL, WEBUI_AUTH
+from config import OLLAMA_API_BASE_URL, OLLAMA_API_AUTH_HEADER, WEBUI_AUTH
 
 app = FastAPI()
 app.add_middleware(
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 app.state.OLLAMA_API_BASE_URL = OLLAMA_API_BASE_URL
+app.state.OLLAMA_API_AUTH_HEADER = OLLAMA_API_AUTH_HEADER
 
 # TARGET_SERVER_URL = OLLAMA_API_BASE_URL
 
@@ -40,6 +41,7 @@ async def get_ollama_api_url(user=Depends(get_current_user)):
 
 class UrlUpdateForm(BaseModel):
     url: str
+    auth_header: str
 
 
 @app.post("/url/update")
@@ -48,6 +50,8 @@ async def update_ollama_api_url(
 ):
     if user and user.role == "admin":
         app.state.OLLAMA_API_BASE_URL = form_data.url
+        if (form_data.auth_header):
+            app.state.OLLAMA_API_AUTH_HEADER = form_data.auth_header
         return {"OLLAMA_API_BASE_URL": app.state.OLLAMA_API_BASE_URL}
     else:
         raise HTTPException(status_code=401, detail=ERROR_MESSAGES.ACCESS_PROHIBITED)
@@ -70,6 +74,10 @@ async def proxy(path: str, request: Request, user=Depends(get_current_user)):
     body = await request.body()
     headers = dict(request.headers)
 
+    # Add the API token if available
+    if app.state.OLLAMA_API_AUTH_HEADER:
+        headers['authorization'] = f"Bearer {app.state.OLLAMA_API_AUTH_HEADER}"
+
     if user.role in ["user", "admin"]:
         if path in ["pull", "delete", "push", "copy", "create"]:
             if user.role != "admin":
@@ -80,7 +88,6 @@ async def proxy(path: str, request: Request, user=Depends(get_current_user)):
         raise HTTPException(status_code=401, detail=ERROR_MESSAGES.ACCESS_PROHIBITED)
 
     headers.pop("host", None)
-    headers.pop("authorization", None)
     headers.pop("origin", None)
     headers.pop("referer", None)
 

@@ -43,6 +43,10 @@ OLLAMA_API_BASE_URL = os.environ.get(
     "OLLAMA_API_BASE_URL", "http://localhost:11434/api"
 )
 
+OLLAMA_API_AUTH_HEADER = os.environ.get(
+    "OLLAMA_API_AUTH_HEADER", ""
+)
+
 if ENV == "prod":
     if OLLAMA_API_BASE_URL == "/ollama/api":
         OLLAMA_API_BASE_URL = "http://host.docker.internal:11434/api"
